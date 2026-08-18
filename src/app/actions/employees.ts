@@ -5,7 +5,8 @@ import { revalidatePath } from "next/cache";
 import { getDb } from "@/db";
 import { businesses, employees } from "@/db/schema";
 import { requireAdmin } from "@/app/actions/auth";
-import { emailFromName, generatePin, hashPin } from "@/lib/pin";
+import { emailFromName, hashPin, INITIAL_PIN } from "@/lib/pin";
+import { personName } from "@/lib/company";
 import { parseRole } from "@/lib/roles";
 import { tryAction } from "@/lib/safe";
 
@@ -45,7 +46,6 @@ export async function createEmployeeAction(formData: FormData) {
       if (attempt > 50) return { error: "Could not generate a unique email." };
     }
 
-    const pin = generatePin();
     const [created] = await db
       .insert(employees)
       .values({
@@ -54,7 +54,8 @@ export async function createEmployeeAction(formData: FormData) {
         firstName,
         lastName,
         role,
-        pinHash: hashPin(pin),
+        pinHash: hashPin(INITIAL_PIN),
+        mustChangePin: true,
       })
       .returning();
 
@@ -65,8 +66,8 @@ export async function createEmployeeAction(formData: FormData) {
     return {
       ok: true as const,
       email: created.email,
-      pin,
-      name: `${created.firstName} ${created.lastName}`,
+      pin: INITIAL_PIN,
+      name: personName(created.firstName, created.lastName),
     };
   }, "Could not create that account. Try again.");
 }

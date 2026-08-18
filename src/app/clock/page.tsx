@@ -7,9 +7,11 @@ import { getDb } from "@/db";
 import { businesses, punches } from "@/db/schema";
 import { lastPunch, pairShifts, formatDate } from "@/lib/time";
 import { clockStatus } from "@/lib/punch";
+import { personName } from "@/lib/company";
 import { canViewTimesheets, parseRole } from "@/lib/roles";
 import { worksiteFromBusiness } from "@/lib/geo";
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 export const metadata = { title: "Clock" };
 
@@ -30,10 +32,14 @@ export default async function ClockPage() {
       );
     }
 
+    if (employee.mustChangePin) {
+      redirect("/pin");
+    }
+
     const live = {
       employeeId: employee.id,
       businessId: employee.businessId,
-      name: `${employee.firstName} ${employee.lastName}`,
+      name: personName(employee.firstName, employee.lastName),
       role: parseRole(employee.role),
     };
     const db = getDb();

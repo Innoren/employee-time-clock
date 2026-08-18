@@ -11,6 +11,19 @@ export async function proxy(request: NextRequest) {
   const token = request.cookies.get(SESSION_COOKIE)?.value;
   const session = token ? await parseSessionToken(token) : null;
 
+  if (pathname.startsWith("/pin")) {
+    if (!session) {
+      const login = new URL("/login", request.url);
+      const response = NextResponse.redirect(login);
+      if (token) clearSessionCookie(response);
+      return response;
+    }
+    if (!session.mustChangePin) {
+      return NextResponse.redirect(new URL("/clock", request.url));
+    }
+    return NextResponse.next();
+  }
+
   if ((pathname.startsWith("/clock") || pathname.startsWith("/admin")) && !session) {
     const login = new URL("/login", request.url);
     login.searchParams.set("next", pathname);
@@ -19,8 +32,14 @@ export async function proxy(request: NextRequest) {
     return response;
   }
 
+  if ((pathname.startsWith("/clock") || pathname.startsWith("/admin")) && session?.mustChangePin) {
+    return NextResponse.redirect(new URL("/pin", request.url));
+  }
+
   if (pathname === "/login" && session) {
-    return NextResponse.redirect(new URL("/clock", request.url));
+    return NextResponse.redirect(
+      new URL(session.mustChangePin ? "/pin" : "/clock", request.url),
+    );
   }
 
   if (pathname === "/login" && token && !session) {
@@ -31,5 +50,5 @@ export async function proxy(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/clock/:path*", "/admin/:path*", "/login"],
+  matcher: ["/clock/:path*", "/admin/:path*", "/login", "/pin"],
 };

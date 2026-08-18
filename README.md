@@ -1,19 +1,20 @@
 # Time Clock
 
-Phone-first employee time clock. Staff use their own iPhone or Android. Managers create accounts under the business domain. Punch times are recorded on the server.
+Phone-first employee time clock for **Complete Doors and Hardware**. Staff use their own iPhone or Android. Managers create accounts under the business domain. Punch times are recorded on the server.
 
 The **iOS and Android apps** are Capacitor shells around this Next.js app. They exist so GPS can stay on after the phone is locked, until the employee clocks out.
 
-## Demo
+## Company
 
-Seeded company: **Riverside Facilities** (`riverside.demo`)
+Seed creates these accounts and prints one-time PINs in the terminal. PINs are not shown in the app.
 
-| Role | Email | PIN |
-| --- | --- | --- |
-| Admin | alex.rivera@riverside.demo | 1001 |
-| Supervisor | maria.chen@riverside.demo | 4821 |
-| Employee | james.okonkwo@riverside.demo | 7390 |
-| Employee | priya.shah@riverside.demo | 1564 |
+| Role | Name |
+| --- | --- |
+| Owner (admin) | Bobby |
+| COO (admin) | Jessie |
+| Payroll Specialist (admin) | Aaliyah Conforme |
+
+Bobby, Jessie, and Aaliyah all have full admin access: live floor, timesheets, team, and worksite. Add field staff from **Team** after signing in.
 
 ## Local web
 

@@ -1,5 +1,7 @@
 import { randomBytes, scryptSync, timingSafeEqual } from "node:crypto";
 
+export { INITIAL_PIN, isPin } from "./pin-constants";
+
 export function hashPin(pin: string) {
   const salt = randomBytes(16);
   const hash = scryptSync(pin, salt, 64);

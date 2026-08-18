@@ -35,6 +35,7 @@ export const employees = pgTable(
     lastName: text("last_name").notNull(),
     role: text("role").notNull().default("employee"),
     pinHash: text("pin_hash").notNull(),
+    mustChangePin: boolean("must_change_pin").notNull().default(true),
     active: boolean("active").notNull().default(true),
     createdAt: timestamp("created_at", { withTimezone: true })
       .defaultNow()

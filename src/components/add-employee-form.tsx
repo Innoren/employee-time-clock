@@ -83,7 +83,8 @@ export function AddEmployeeForm({ domain }: { domain: string }) {
         <Alert>
           <AlertTitle>Account created for {created.name}</AlertTitle>
           <AlertDescription>
-            Share this once: {created.email} · PIN {created.pin}
+            Share this once: {created.email} · starter PIN {created.pin}.
+            They must change it on first sign-in.
           </AlertDescription>
         </Alert>
       ) : null}

@@ -6,17 +6,10 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { PinDots, PinKeypad } from "@/components/pin-keypad";
 import { actionError, tryAction } from "@/lib/safe";
-import { Delete } from "lucide-react";
 
-const DEMO_ACCOUNTS = [
-  { email: "alex.rivera@riverside.demo", pin: "1001", label: "Manager" },
-  { email: "maria.chen@riverside.demo", pin: "4821", label: "Crew lead" },
-  { email: "james.okonkwo@riverside.demo", pin: "7390", label: "Technician" },
-  { email: "priya.shah@riverside.demo", pin: "1564", label: "Technician" },
-];
-
-export function LoginForm() {
+export function LoginForm({ domain }: { domain: string }) {
   const [email, setEmail] = useState("");
   const [pin, setPin] = useState("");
   const [state, formAction, pending] = useActionState(
@@ -47,60 +40,19 @@ export function LoginForm() {
           inputMode="email"
           value={email}
           onChange={(event) => setEmail(event.target.value)}
-          placeholder="name@riverside.demo"
+          placeholder={`name@${domain}`}
           className="h-11 text-base"
           required
         />
       </div>
       <div className="space-y-2">
         <Label>4-digit PIN</Label>
-        <div className="flex justify-center gap-3 py-2">
-          {Array.from({ length: 4 }).map((_, index) => (
-            <span
-              key={index}
-              className="flex size-12 items-center justify-center rounded-xl border border-border bg-input/30 font-mono text-xl"
-            >
-              {pin[index] ? "•" : ""}
-            </span>
-          ))}
-        </div>
-        <div className="grid grid-cols-3 gap-2">
-          {["1", "2", "3", "4", "5", "6", "7", "8", "9"].map((digit) => (
-            <Button
-              key={digit}
-              type="button"
-              variant="secondary"
-              className="h-14 text-xl"
-              onClick={() => addDigit(digit)}
-            >
-              {digit}
-            </Button>
-          ))}
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-14"
-            onClick={() => setPin("")}
-          >
-            Clear
-          </Button>
-          <Button
-            type="button"
-            variant="secondary"
-            className="h-14 text-xl"
-            onClick={() => addDigit("0")}
-          >
-            0
-          </Button>
-          <Button
-            type="button"
-            variant="ghost"
-            className="h-14"
-            onClick={() => setPin((current) => current.slice(0, -1))}
-          >
-            <Delete />
-          </Button>
-        </div>
+        <PinDots pin={pin} />
+        <PinKeypad
+          onDigit={addDigit}
+          onClear={() => setPin("")}
+          onBack={() => setPin((current) => current.slice(0, -1))}
+        />
       </div>
       {state?.error ? (
         <Alert variant="destructive">
@@ -110,32 +62,6 @@ export function LoginForm() {
       <Button type="submit" className="h-11 w-full" disabled={pending || pin.length !== 4}>
         {pending ? "Signing in…" : "Sign in"}
       </Button>
-      <div className="space-y-2">
-        <p className="text-xs font-medium uppercase tracking-wide text-muted-foreground">
-          Demo accounts
-        </p>
-        <div className="grid gap-2">
-          {DEMO_ACCOUNTS.map((account) => (
-            <button
-              key={account.email}
-              type="button"
-              className="flex items-center justify-between rounded-lg border border-border px-3 py-2 text-left text-sm hover:bg-muted"
-              onClick={() => {
-                setEmail(account.email);
-                setPin(account.pin);
-              }}
-            >
-              <span>
-                <span className="block font-medium">{account.label}</span>
-                <span className="font-mono text-xs text-muted-foreground">
-                  {account.email}
-                </span>
-              </span>
-              <span className="font-mono text-muted-foreground">{account.pin}</span>
-            </button>
-          ))}
-        </div>
-      </div>
     </form>
   );
 }

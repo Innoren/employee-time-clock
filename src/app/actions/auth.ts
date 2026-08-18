@@ -4,8 +4,9 @@ import { eq } from "drizzle-orm";
 import { redirect } from "next/navigation";
 import { getDb } from "@/db";
 import { employees } from "@/db/schema";
-import { verifyPin } from "@/lib/pin";
+import { INITIAL_PIN, isPin, hashPin, verifyPin } from "@/lib/pin";
 import { clearSession, createSession, readSession } from "@/lib/session";
+import { personName } from "@/lib/company";
 import { canManageTeam, canViewTimesheets, homePath, parseRole } from "@/lib/roles";
 import { failAction } from "@/lib/safe";
 
@@ -16,7 +17,7 @@ export async function loginAction(formData: FormData) {
       .toLowerCase();
     const pin = String(formData.get("pin") || "").trim();
 
-    if (!email || !/^\d{4}$/.test(pin)) {
+    if (!email || !isPin(pin)) {
       return { error: "Enter your work email and 4-digit PIN." };
     }
 
@@ -38,10 +39,11 @@ export async function loginAction(formData: FormData) {
       businessId: employee.businessId,
       role,
       email: employee.email,
-      name: `${employee.firstName} ${employee.lastName}`,
+      name: personName(employee.firstName, employee.lastName),
+      mustChangePin: employee.mustChangePin,
     });
 
-    redirect(homePath(role));
+    redirect(employee.mustChangePin ? "/pin" : homePath(role));
   } catch (error) {
     return failAction(error, "Could not sign in. Try again.");
   }
@@ -54,6 +56,55 @@ export async function logoutAction() {
     failAction(error);
   }
   redirect("/login");
+}
+
+export async function changePinAction(formData: FormData) {
+  try {
+    const pin = String(formData.get("pin") || "").trim();
+    const confirm = String(formData.get("confirm") || "").trim();
+    if (!isPin(pin) || !isPin(confirm)) {
+      return { error: "Enter a 4-digit PIN twice." };
+    }
+    if (pin !== confirm) {
+      return { error: "Those PINs do not match." };
+    }
+    if (pin === INITIAL_PIN) {
+      return { error: `Choose a PIN other than ${INITIAL_PIN}.` };
+    }
+
+    const session = await requireUser();
+    const employee = await findActiveEmployee(session);
+    if (!employee) {
+      await clearSession();
+      redirect("/login");
+    }
+    if (verifyPin(pin, employee.pinHash)) {
+      return { error: "Choose a different PIN than the one you just used." };
+    }
+
+    const db = getDb();
+    await db
+      .update(employees)
+      .set({
+        pinHash: hashPin(pin),
+        mustChangePin: false,
+      })
+      .where(eq(employees.id, employee.id));
+
+    const role = parseRole(employee.role);
+    await createSession({
+      employeeId: employee.id,
+      businessId: employee.businessId,
+      role,
+      email: employee.email,
+      name: personName(employee.firstName, employee.lastName),
+      mustChangePin: false,
+    });
+
+    redirect(homePath(role));
+  } catch (error) {
+    return failAction(error, "Could not update your PIN. Try again.");
+  }
 }
 
 export async function requireUser() {
@@ -97,7 +148,8 @@ export async function requireActiveEmployee() {
     businessId: employee.businessId,
     role: parseRole(employee.role),
     email: employee.email,
-    name: `${employee.firstName} ${employee.lastName}`,
+    name: personName(employee.firstName, employee.lastName),
+    mustChangePin: employee.mustChangePin,
   };
 
   if (
@@ -105,13 +157,18 @@ export async function requireActiveEmployee() {
     live.businessId !== session.businessId ||
     live.role !== session.role ||
     live.email !== session.email ||
-    live.name !== session.name
+    live.name !== session.name ||
+    live.mustChangePin !== session.mustChangePin
   ) {
     try {
       await createSession(live);
     } catch {
       // Still return the live employee so this request can proceed.
     }
+  }
+
+  if (employee.mustChangePin) {
+    redirect("/pin");
   }
 
   return live;

@@ -1,27 +1,30 @@
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { LoginForm } from "@/components/login-form";
+import { APP_NAME, getCompany } from "@/lib/company";
 
 export const metadata = {
   title: "Sign in",
 };
 
-export default function LoginPage() {
+export default async function LoginPage() {
+  const company = await getCompany();
+
   return (
     <div className="flex min-h-full flex-col items-center justify-center px-4 py-10">
       <Link href="/" className="mb-6 text-sm text-muted-foreground">
-        Time Clock
+        {APP_NAME}
       </Link>
       <Card className="w-full max-w-md">
         <CardHeader>
-          <CardTitle>Sign in to Riverside Facilities</CardTitle>
+          <CardTitle>Sign in to {company.name}</CardTitle>
           <CardDescription>
-            Use your work email and PIN. Accounts are created by a manager under
-            riverside.demo.
+            Use your work email and 4-digit PIN. First sign-in uses PIN 1234,
+            then you set your own.
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <LoginForm />
+          <LoginForm domain={company.domain} />
         </CardContent>
       </Card>
       <Link href="/privacy" className="mt-6 text-xs text-muted-foreground">

@@ -11,6 +11,7 @@ export type SessionUser = {
   role: Role;
   email: string;
   name: string;
+  mustChangePin: boolean;
 };
 
 const UUID =
@@ -38,6 +39,7 @@ export function sessionFromPayload(payload: unknown): SessionUser | null {
     role: parseRole(user.role),
     email: user.email.trim().toLowerCase(),
     name: user.name.trim(),
+    mustChangePin: user.mustChangePin === true,
   };
 }
 
