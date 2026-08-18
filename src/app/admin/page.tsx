@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { getDb } from "@/db";
 import { businesses, employees, locationPings, punches } from "@/db/schema";
+import { personName } from "@/lib/company";
 import { formatDistance, mapsUrl } from "@/lib/geo";
 import { formatHours, formatShortTime, lastPunch, pairShifts } from "@/lib/time";
 import { clockStatus, statusLabel } from "@/lib/punch";
@@ -106,7 +107,7 @@ export default async function AdminPage() {
               >
                 <div>
                   <p className="font-medium">
-                    {row.person.firstName} {row.person.lastName}
+                    {personName(row.person.firstName, row.person.lastName)}
                   </p>
                   <p className="font-mono text-xs text-muted-foreground">{row.person.email}</p>
                   {row.ping ? (

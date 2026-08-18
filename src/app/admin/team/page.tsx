@@ -16,6 +16,7 @@ import {
 } from "@/components/ui/table";
 import { getDb } from "@/db";
 import { businesses, employees } from "@/db/schema";
+import { COMPANY_DOMAIN, personName } from "@/lib/company";
 import { parseRole, roleLabel } from "@/lib/roles";
 
 export const metadata = { title: "Team" };
@@ -44,7 +45,7 @@ export default async function TeamPage() {
           </CardDescription>
         </CardHeader>
         <CardContent>
-          <AddEmployeeForm domain={business?.domain ?? "riverside.demo"} />
+          <AddEmployeeForm domain={business?.domain ?? COMPANY_DOMAIN} />
         </CardContent>
       </Card>
       <Card>
@@ -66,7 +67,7 @@ export default async function TeamPage() {
               {team.map((person) => (
                 <TableRow key={person.id}>
                   <TableCell>
-                    {person.firstName} {person.lastName}
+                    {personName(person.firstName, person.lastName)}
                   </TableCell>
                   <TableCell className="font-mono text-xs">{person.email}</TableCell>
                   <TableCell>{roleLabel(parseRole(person.role))}</TableCell>

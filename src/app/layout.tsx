@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: { default: "Time Clock", template: "%s · Time Clock" },
   description:
-    "Accurate employee time tracking from any iPhone or Android. Accounts are created under your business domain.",
+    "Employee time tracking for Complete Doors and Hardware. Clock in from any iPhone or Android.",
   applicationName: "Time Clock",
   appleWebApp: {
     capable: true,

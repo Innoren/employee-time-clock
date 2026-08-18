@@ -78,9 +78,9 @@ Fill in:
 
 **Review notes** (paste something like this):
 
-> Time Clock is a workplace timekeeping app. Employees clock in on a personal phone. GPS is required on each punch and continues in the background until clock-out so the employer can confirm the employee is at the job site. Choose Always Allow when iOS asks. Tracking stops on clock-out.
+> Time Clock is a workplace timekeeping app for Complete Doors and Hardware. Employees clock in on a personal phone. GPS is required on each punch and continues in the background until clock-out so the employer can confirm the employee is at the job site. Choose Always Allow when iOS asks. Tracking stops on clock-out.
 >
-> Demo: alex.rivera@riverside.demo PIN 1001 (manager) and james.okonkwo@riverside.demo PIN 7390 (employee).
+> A manager test account can be provided to App Review on request. Do not ship demo PINs in the public app.
 >
 > Attach a screen recording: clock in → lock the phone → location still updates on the manager Live floor → clock out → GPS stops.
 

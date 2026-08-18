@@ -6,15 +6,15 @@ The **iOS and Android apps** are Capacitor shells around this Next.js app. They 
 
 ## Company
 
-Seed creates these accounts and prints one-time PINs in the terminal. PINs are not shown in the app.
+Seed creates these accounts. Everyone signs in with starter PIN **1234**, then must set a new PIN before using the app.
 
-| Role | Name |
-| --- | --- |
-| Owner (admin) | Bobby |
-| COO (admin) | Jessie |
-| Payroll Specialist (admin) | Aaliyah Conforme |
+| Role | Name | Email |
+| --- | --- | --- |
+| Owner (admin) | Bobby | bobby@completedoorsandhardware.com |
+| COO (admin) | Jessie | jessie@completedoorsandhardware.com |
+| Payroll Specialist (admin) | Aaliyah Conforme | aaliyah.conforme@completedoorsandhardware.com |
 
-Bobby, Jessie, and Aaliyah all have full admin access: live floor, timesheets, team, and worksite. Add field staff from **Team** after signing in.
+Bobby, Jessie, and Aaliyah all have full admin access: live floor, timesheets, team, and worksite. New staff also start with PIN 1234 and change it on first sign-in.
 
 ## Local web
 

@@ -13,6 +13,7 @@ import {
 } from "@/components/ui/table";
 import { getDb } from "@/db";
 import { businesses, employees, punches } from "@/db/schema";
+import { personName } from "@/lib/company";
 import { formatHours, formatDateTime, pairShifts } from "@/lib/time";
 import { isTravelPunch, punchLabel } from "@/lib/punch";
 import { Badge } from "@/components/ui/badge";
@@ -57,7 +58,7 @@ export default async function TimesheetsPage() {
             <CardHeader>
               <CardTitle className="flex items-center justify-between gap-3">
                 <span>
-                  {row.person.firstName} {row.person.lastName}
+                  {personName(row.person.firstName, row.person.lastName)}
                 </span>
                 <span className="font-mono text-base font-semibold">
                   {formatHours(row.total)}

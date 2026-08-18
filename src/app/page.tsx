@@ -3,16 +3,19 @@ import { ArrowRight, Clock3, Smartphone, ShieldCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import { APP_NAME, getCompany } from "@/lib/company";
 
-export default function Home() {
+export default async function Home() {
+  const company = await getCompany();
+
   return (
     <div className="min-h-full bg-background">
       <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-6 py-5">
         <div className="flex items-center gap-2 text-sm font-medium">
           <span className="flex size-8 items-center justify-center rounded-lg bg-primary text-xs font-semibold text-primary-foreground">
-            TC
+            CD
           </span>
-          Time Clock
+          {APP_NAME}
         </div>
         <Button asChild variant="outline">
           <Link href="/login">Sign in</Link>
@@ -21,20 +24,20 @@ export default function Home() {
 
       <main className="mx-auto w-full max-w-5xl px-6 pb-20">
         <Badge variant="secondary" className="mb-6">
-          Demo environment · Riverside Facilities
+          {company.name}
         </Badge>
         <h1 className="max-w-3xl text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
           Accurate time from every employee&apos;s own phone.
         </h1>
         <p className="mt-4 max-w-2xl text-lg text-muted-foreground text-pretty">
-          No company devices. Staff install the iPhone or Android app.
-          Accounts are created under your business domain, and every punch is
-          stamped by the server — not the phone clock.
+          No company devices. Staff sign in on a phone browser or the iPhone and
+          Android apps. Accounts are created under the business domain, and every
+          punch is stamped by the server — not the phone clock.
         </p>
         <div className="mt-8 flex flex-col gap-3 sm:flex-row">
           <Button asChild size="lg" className="h-11 px-5">
             <Link href="/login">
-              Open the demo
+              Sign in
               <ArrowRight />
             </Link>
           </Button>
@@ -50,8 +53,8 @@ export default function Home() {
               <CardTitle>Personal phones</CardTitle>
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
-              Open the clock on a phone browser, or install the iPhone and
-              Android apps for a home-screen icon and a large clock-in button.
+              Open the clock on a phone browser, or add it to the home screen
+              for a large clock-in button.
             </CardContent>
           </Card>
           <Card>
@@ -61,7 +64,7 @@ export default function Home() {
             </CardHeader>
             <CardContent className="text-sm text-muted-foreground">
               Managers create people as{" "}
-              <span className="font-mono text-foreground">name@riverside.demo</span>.
+              <span className="font-mono text-foreground">name@{company.domain}</span>.
               Employees cannot self-register.
             </CardContent>
           </Card>
@@ -79,29 +82,28 @@ export default function Home() {
 
         <section id="install" className="mt-16 scroll-mt-8">
           <h2 className="text-2xl font-semibold tracking-tight">
-            iPhone and Android apps
+            Add {APP_NAME} to your phone
           </h2>
           <div className="mt-4 grid gap-4 md:grid-cols-2">
             <Card>
               <CardHeader>
-                <CardTitle>App Store</CardTitle>
+                <CardTitle>iPhone</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
                 <p>
-                  Open the native iPhone app in Xcode with{" "}
-                  <span className="font-mono text-foreground">npm run cap:ios</span>{" "}
-                  after signing in with an Apple Developer account.
+                  Open this site in Safari, tap Share, then Add to Home Screen.
+                  Sign in with the work email and PIN your manager issued.
                 </p>
               </CardContent>
             </Card>
             <Card>
               <CardHeader>
-                <CardTitle>Google Play</CardTitle>
+                <CardTitle>Android</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm text-muted-foreground">
                 <p>
-                  Open the native Android app in Android Studio with{" "}
-                  <span className="font-mono text-foreground">npm run cap:android</span>.
+                  Open this site in Chrome, tap the menu, then Add to Home
+                  screen. Sign in with the work email and PIN your manager issued.
                 </p>
               </CardContent>
             </Card>

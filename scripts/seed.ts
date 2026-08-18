@@ -1,8 +1,8 @@
-import { eq, inArray, like } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { neon } from "@neondatabase/serverless";
 import { drizzle } from "drizzle-orm/neon-http";
-import { businesses, employees, locationPings, punches } from "../src/db/schema";
-import { emailFromName, generatePin, hashPin } from "../src/lib/pin";
+import { businesses, employees } from "../src/db/schema";
+import { emailFromName, hashPin, INITIAL_PIN } from "../src/lib/pin";
 
 const COMPANY_NAME = "Complete Doors and Hardware";
 const COMPANY_DOMAIN = "completedoorsandhardware.com";
@@ -46,20 +46,6 @@ async function main() {
 
   if (!business) throw new Error("Could not seed business");
 
-  const demoEmployees = await db
-    .select({ id: employees.id })
-    .from(employees)
-    .where(like(employees.email, "%@riverside.demo"));
-  const demoIds = demoEmployees.map((row) => row.id);
-  if (demoIds.length > 0) {
-    await db.delete(locationPings).where(inArray(locationPings.employeeId, demoIds));
-    await db.delete(punches).where(inArray(punches.employeeId, demoIds));
-    await db.delete(employees).where(inArray(employees.id, demoIds));
-  }
-
-  console.log(`Company: ${business.name} (${business.domain})`);
-  console.log("Share these PINs privately. They are not shown in the app.");
-
   for (const person of people) {
     const email = emailFromName(person.firstName, person.lastName, business.domain);
     const [current] = await db
@@ -79,22 +65,23 @@ async function main() {
           active: true,
         })
         .where(eq(employees.id, current.id));
-      console.log(`${person.title.padEnd(22)} ${email}  (PIN unchanged)`);
       continue;
     }
 
-    const pin = generatePin();
     await db.insert(employees).values({
       businessId: business.id,
       email,
       firstName: person.firstName,
       lastName: person.lastName,
       role: person.role,
-      pinHash: hashPin(pin),
+      pinHash: hashPin(INITIAL_PIN),
+      mustChangePin: true,
       active: true,
     });
-    console.log(`${person.title.padEnd(22)} ${email}  PIN ${pin}`);
   }
+
+  console.log(`Company: ${business.name} (${business.domain})`);
+  console.log(`Starter PIN for new accounts: ${INITIAL_PIN} (changed on first sign-in)`);
 }
 
 main().catch((error) => {

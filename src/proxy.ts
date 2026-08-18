@@ -18,9 +18,6 @@ export async function proxy(request: NextRequest) {
       if (token) clearSessionCookie(response);
       return response;
     }
-    if (!session.mustChangePin) {
-      return NextResponse.redirect(new URL("/clock", request.url));
-    }
     return NextResponse.next();
   }
 
