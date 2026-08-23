@@ -96,7 +96,7 @@ export default async function ClockPage() {
           <div className="flex items-center gap-2">
             {canViewTimesheets(live.role) ? (
               <Button asChild variant="outline" size="sm">
-                <Link href="/admin/timesheets">Timesheets</Link>
+                <Link href="/admin">Live</Link>
               </Button>
             ) : null}
             <form action={logoutAction}>

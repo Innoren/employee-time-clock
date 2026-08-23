@@ -5,6 +5,7 @@ import {
   getLocationTokenAction,
   reportLocationAction,
 } from "@/app/actions/location";
+import { LiveMap } from "@/components/live-map";
 import { Badge } from "@/components/ui/badge";
 import {
   formatDistance,
@@ -12,6 +13,8 @@ import {
   metersBetween,
   type Worksite,
 } from "@/lib/geo";
+import type { LivePerson, LiveTrailPoint } from "@/lib/live";
+import type { ClockStatus } from "@/lib/punch";
 import {
   openNativeLocationSettings,
   postNativeLocation,
@@ -20,15 +23,18 @@ import {
   type DeviceCoords,
 } from "@/lib/device-location";
 
-const MIN_INTERVAL_MS = 15_000;
-const MIN_MOVE_METERS = 20;
+const MIN_INTERVAL_MS = 1_000;
+const MIN_MOVE_METERS = 2;
+const HEARTBEAT_MS = 3_000;
 
 type Props = {
   active: boolean;
   worksite: Worksite | null;
+  employeeName: string;
+  status: ClockStatus;
 };
 
-export function LocationTracker({ active, worksite }: Props) {
+export function LocationTracker({ active, worksite, employeeName, status }: Props) {
   const native = useNativeApp();
   const [state, setState] = useState<"off" | "requesting" | "tracking" | "denied">(
     "off",
@@ -39,6 +45,7 @@ export function LocationTracker({ active, worksite }: Props) {
     longitude: number;
     at: Date;
   } | null>(null);
+  const [trail, setTrail] = useState<LiveTrailPoint[]>([]);
   const lastSent = useRef<{ latitude: number; longitude: number; at: number } | null>(
     null,
   );
@@ -49,6 +56,7 @@ export function LocationTracker({ active, worksite }: Props) {
       if (!active) {
         setState("off");
         setLast(null);
+        setTrail([]);
         lastSent.current = null;
         tokenRef.current = null;
       }
@@ -77,7 +85,8 @@ export function LocationTracker({ active, worksite }: Props) {
       const previous = lastSent.current;
       const elapsed = previous ? now - previous.at : Infinity;
       const moved = previous ? metersBetween(previous, point) : Infinity;
-      if (elapsed < MIN_INTERVAL_MS && moved < MIN_MOVE_METERS) return;
+      if (elapsed < MIN_INTERVAL_MS) return;
+      if (moved < MIN_MOVE_METERS && elapsed < HEARTBEAT_MS) return;
       lastSent.current = { ...point, at: now };
 
       const payload = {
@@ -116,10 +125,23 @@ export function LocationTracker({ active, worksite }: Props) {
           (coords) => {
             if (cancelled) return;
             setState("tracking");
+            const at = new Date();
             setLast({
               latitude: coords.latitude,
               longitude: coords.longitude,
-              at: new Date(),
+              at,
+            });
+            setTrail((points) => {
+              const next = {
+                latitude: coords.latitude,
+                longitude: coords.longitude,
+                recordedAt: at.toISOString(),
+              };
+              const previous = points[points.length - 1];
+              if (previous && metersBetween(previous, next) < 1) {
+                return [...points.slice(0, -1), next];
+              }
+              return [...points, next].slice(-80);
             });
             send(coords);
           },
@@ -157,6 +179,23 @@ export function LocationTracker({ active, worksite }: Props) {
     last && worksite ? metersBetween(last, worksite) : null;
   const away =
     distance != null && worksite ? isOutsideWorksite(distance, worksite) : false;
+  const self: LivePerson | null = last
+    ? {
+        id: "self",
+        name: employeeName,
+        email: "",
+        status,
+        since: null,
+        note: null,
+        latitude: last.latitude,
+        longitude: last.longitude,
+        accuracyMeters: null,
+        distanceMeters: distance,
+        outsideSite: away,
+        recordedAt: last.at.toISOString(),
+        trail,
+      }
+    : null;
 
   if (!active) {
     return (
@@ -176,6 +215,14 @@ export function LocationTracker({ active, worksite }: Props) {
           <span className="font-medium text-foreground">Always Allow</span> if
           iPhone asks.
         </p>
+      ) : null}
+      {last || worksite ? (
+        <LiveMap
+          worksite={worksite}
+          people={self ? [self] : []}
+          selectedId={self?.id ?? null}
+          className="h-64 w-full overflow-hidden rounded-xl border border-border"
+        />
       ) : null}
       <div className="rounded-xl border border-border px-4 py-4 text-center">
         {worksite && distance != null ? (

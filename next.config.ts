@@ -9,6 +9,7 @@ const nextConfig: NextConfig = {
     "@capacitor/status-bar",
     "@capacitor/splash-screen",
     "@capgo/background-geolocation",
+    "leaflet",
   ],
 };
 

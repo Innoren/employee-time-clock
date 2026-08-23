@@ -6,6 +6,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { getDevicePosition } from "@/lib/device-location";
 import { formatCoords } from "@/lib/geo";
 import { actionError, tryAction } from "@/lib/safe";
 
@@ -30,18 +31,18 @@ export function WorksiteForm({
 
   function useThisPhone() {
     setError(null);
-    if (!navigator.geolocation) {
-      setError("Location is not available on this device.");
-      return;
-    }
-    navigator.geolocation.getCurrentPosition(
-      (position) => {
-        setLat(position.coords.latitude);
-        setLng(position.coords.longitude);
-      },
-      () => setError("Allow location to save this phone as the worksite."),
-      { enableHighAccuracy: true, timeout: 12_000 },
-    );
+    void getDevicePosition()
+      .then((position) => {
+        setLat(position.latitude);
+        setLng(position.longitude);
+      })
+      .catch((cause) => {
+        setError(
+          cause instanceof Error
+            ? cause.message
+            : "Allow location to save this phone as the worksite.",
+        );
+      });
   }
 
   return (

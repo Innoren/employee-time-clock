@@ -2,8 +2,8 @@
 <resources>
     <string name="app_name">Time Clock</string>
     <string name="title_activity_main">Time Clock</string>
-    <string name="package_name">com.sinclairatelier.timeclock</string>
-    <string name="custom_url_scheme">com.sinclairatelier.timeclock</string>
+    <string name="package_name">com.completedoorsandhardware.timeclock</string>
+    <string name="custom_url_scheme">com.completedoorsandhardware.timeclock</string>
     <string name="capacitor_background_geolocation_notification_channel_name">On the clock</string>
     <string name="capacitor_background_geolocation_notification_channel_importance">4</string>
 </resources>

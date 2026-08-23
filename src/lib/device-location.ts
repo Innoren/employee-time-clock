@@ -59,35 +59,6 @@ function readBrowserPositionOnce(options: PositionOptions) {
   });
 }
 
-function watchBrowserPositionOnce(timeoutMs: number) {
-  return new Promise<DeviceCoords>((resolve, reject) => {
-    let settled = false;
-    const timer = window.setTimeout(() => {
-      if (settled) return;
-      settled = true;
-      navigator.geolocation.clearWatch(watchId);
-      reject({ code: 3, message: "Timeout expired" });
-    }, timeoutMs);
-    const watchId = navigator.geolocation.watchPosition(
-      (position) => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
-        navigator.geolocation.clearWatch(watchId);
-        resolve(coordsFromPosition(position));
-      },
-      (error) => {
-        if (settled) return;
-        settled = true;
-        window.clearTimeout(timer);
-        navigator.geolocation.clearWatch(watchId);
-        reject(error);
-      },
-      { enableHighAccuracy: false, timeout: timeoutMs, maximumAge: 120_000 },
-    );
-  });
-}
-
 async function readBrowserPosition(): Promise<DeviceCoords> {
   if (!navigator.geolocation) {
     throw new Error("Location is not available on this device.");
@@ -95,8 +66,9 @@ async function readBrowserPosition(): Promise<DeviceCoords> {
   assertLocationOrigin();
 
   const attempts: PositionOptions[] = [
-    { enableHighAccuracy: true, timeout: 20_000, maximumAge: 60_000 },
-    { enableHighAccuracy: false, timeout: 20_000, maximumAge: 120_000 },
+    { enableHighAccuracy: false, timeout: 1_500, maximumAge: 300_000 },
+    { enableHighAccuracy: false, timeout: 4_000, maximumAge: 0 },
+    { enableHighAccuracy: true, timeout: 8_000, maximumAge: 0 },
   ];
 
   let lastError: { code?: number; message?: string } | undefined;
@@ -112,47 +84,38 @@ async function readBrowserPosition(): Promise<DeviceCoords> {
     }
   }
 
-  try {
-    return await watchBrowserPositionOnce(20_000);
-  } catch (error) {
-    const geoError = (error as { code?: number; message?: string }) ?? lastError;
-    throw new Error(geoErrorMessage(geoError ?? {}));
-  }
+  throw new Error(geoErrorMessage(lastError ?? {}));
 }
 
-export async function getDevicePosition(): Promise<DeviceCoords> {
-  if (!isNativeApp()) {
-    return readBrowserPosition();
-  }
-
+async function readNativePosition(): Promise<DeviceCoords> {
   const { Geolocation } = await import("@capacitor/geolocation");
   const permission = await Geolocation.requestPermissions();
   if (permission.location === "denied") {
     throw new Error("Allow location access to clock in.");
   }
 
-  try {
-    return coordsFromPosition(
-      await Geolocation.getCurrentPosition({
-        enableHighAccuracy: true,
-        timeout: 20_000,
-        maximumAge: 60_000,
-      }),
-    );
-  } catch {
+  const attempts = [
+    { enableHighAccuracy: false, timeout: 1_500, maximumAge: 300_000 },
+    { enableHighAccuracy: false, timeout: 4_000, maximumAge: 0 },
+    { enableHighAccuracy: true, timeout: 8_000, maximumAge: 0 },
+  ] as const;
+
+  let lastError: { code?: number; message?: string } | undefined;
+  for (const options of attempts) {
     try {
-      return coordsFromPosition(
-        await Geolocation.getCurrentPosition({
-          enableHighAccuracy: false,
-          timeout: 20_000,
-          maximumAge: 120_000,
-        }),
-      );
+      return coordsFromPosition(await Geolocation.getCurrentPosition(options));
     } catch (error) {
-      const geoError = error as { code?: number; message?: string };
-      throw new Error(geoErrorMessage(geoError));
+      lastError = error as { code?: number; message?: string };
     }
   }
+  throw new Error(geoErrorMessage(lastError ?? {}));
+}
+
+export async function getDevicePosition(): Promise<DeviceCoords> {
+  if (!isNativeApp()) {
+    return readBrowserPosition();
+  }
+  return readNativePosition();
 }
 
 export async function startShiftTracking(
@@ -164,15 +127,27 @@ export async function startShiftTracking(
       onError("Location is not available on this device.");
       return () => {};
     }
+    void readBrowserPositionOnce({
+      enableHighAccuracy: false,
+      timeout: 1_500,
+      maximumAge: 300_000,
+    })
+      .then(onLocation)
+      .catch(() => {});
+
     const watchId = navigator.geolocation.watchPosition(
       (position) => {
         onLocation(coordsFromPosition(position));
       },
       (error) => onError(geoErrorMessage(error)),
-      { enableHighAccuracy: true, maximumAge: 60_000, timeout: 30_000 },
+      { enableHighAccuracy: true, maximumAge: 0, timeout: 10_000 },
     );
     return () => navigator.geolocation.clearWatch(watchId);
   }
+
+  void readNativePosition()
+    .then(onLocation)
+    .catch(() => {});
 
   const { BackgroundGeolocation } = await import(
     "@capgo/background-geolocation"
@@ -183,8 +158,8 @@ export async function startShiftTracking(
         "Time Clock is tracking this shift until you clock out.",
       backgroundTitle: "On the clock",
       requestPermissions: true,
-      stale: false,
-      distanceFilter: 20,
+      stale: true,
+      distanceFilter: 1,
     },
     (location, error) => {
       if (error) {

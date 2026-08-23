@@ -5,10 +5,10 @@ import { Button } from "@/components/ui/button";
 
 export default function Error({
   error,
-  retry,
+  reset,
 }: {
   error: Error & { digest?: string };
-  retry: () => void;
+  reset: () => void;
 }) {
   useEffect(() => {
     console.error(error);
@@ -20,7 +20,7 @@ export default function Error({
       <p className="text-sm text-muted-foreground">
         This page hit an unexpected error. You can try again without losing your punches.
       </p>
-      <Button type="button" onClick={() => retry()}>
+      <Button type="button" onClick={() => reset()}>
         Try again
       </Button>
     </div>

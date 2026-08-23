@@ -6,6 +6,7 @@ The **iOS and Android apps** are Capacitor shells around this Next.js app. They 
 
 ## Company
 
+
 Seed creates these accounts. Everyone signs in with starter PIN **1234**, then must set a new PIN before using the app.
 
 | Role | Name | Email |
@@ -57,8 +58,8 @@ See [PUBLISHING.md](PUBLISHING.md) for the App Store and Google Play checklist.
 
 You still need:
 
-- Apple Developer Program and App Store Connect listing (bundle ID `com.sinclairatelier.timeclock`)
-- Google Play Console listing (application ID `com.sinclairatelier.timeclock`)
+- Apple Developer Program and App Store Connect listing (bundle ID `com.completedoorsandhardware.timeclock`)
+- Google Play Console listing (application ID `com.completedoorsandhardware.timeclock`)
 - Privacy policy URL: `/privacy`
 - App Store location purpose: GPS while clocked in, including background, to confirm the employee is at the worksite
 - Play Console: declare background location and show the in-app disclosure before requesting **Allow all the time**

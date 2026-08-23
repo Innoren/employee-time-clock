@@ -60,6 +60,10 @@ export function ClockPanel({
   const [pending, startTransition] = useTransition();
 
   useEffect(() => {
+    void getDevicePosition().catch(() => {});
+  }, []);
+
+  useEffect(() => {
     let cancelled = false;
     fetch("/api/time")
       .then((response) => (response.ok ? response.json() : Promise.reject()))
@@ -160,7 +164,12 @@ export function ClockPanel({
             ) : null}
           </p>
 
-          <LocationTracker active={status !== "off"} worksite={worksite} />
+          <LocationTracker
+            active={status !== "off"}
+            worksite={worksite}
+            employeeName={name}
+            status={status}
+          />
 
           {error ? <p className="text-sm text-destructive">{error}</p> : null}
 

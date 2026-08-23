@@ -2,7 +2,7 @@
 
 The iPhone and Android apps are Capacitor shells. They load your live Next.js site and use native GPS so tracking can continue after the phone is locked. Shipping a new GPS rule later is usually a **web deploy**, not a store resubmit, unless you change plugins or permissions.
 
-Bundle / application ID: `com.sinclairatelier.timeclock`
+Bundle / application ID: `com.completedoorsandhardware.timeclock`
 
 ## Before you start
 
@@ -40,7 +40,7 @@ npm run cap:ios
 
 - Select the **App** target → **Signing & Capabilities**.
 - Choose your Team. Enable **Automatically manage signing**.
-- Bundle Identifier must stay `com.sinclairatelier.timeclock`.
+- Bundle Identifier must stay `com.completedoorsandhardware.timeclock`.
 - Set a unique **Version** (e.g. `1.0.0`) and **Build** (increment every upload, e.g. `1`, `2`, `3`).
 - Confirm **Background Modes → Location updates** is on (already in `Info.plist`).
 - Confirm location usage strings are present (already in `ios/App/App/Info.plist`).
@@ -58,7 +58,7 @@ Add a 1024×1024 marketing icon in `ios/App/App/Assets.xcassets/AppIcon.appicons
 
 ### 5. App Store Connect listing
 
-Create the app if it does not exist (bundle ID `com.sinclairatelier.timeclock`).
+Create the app if it does not exist (bundle ID `com.completedoorsandhardware.timeclock`).
 
 Fill in:
 
@@ -116,7 +116,7 @@ npm run cap:android
 3. Build type: **release**.
 4. Produce an **.aab** (Play does not accept APK for new apps).
 
-Application ID must stay `com.sinclairatelier.timeclock`. Increment `versionCode` and `versionName` in `android/app/build.gradle` for every upload.
+Application ID must stay `com.completedoorsandhardware.timeclock`. Increment `versionCode` and `versionName` in `android/app/build.gradle` for every upload.
 
 ### 4. Play Console listing
 

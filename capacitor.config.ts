@@ -15,7 +15,7 @@ function extraHosts(url: string) {
 }
 
 const config: CapacitorConfig = {
-  appId: "com.sinclairatelier.timeclock",
+  appId: "com.completedoorsandhardware.timeclock",
   appName: "Time Clock",
   webDir: "native-www",
   server: {
