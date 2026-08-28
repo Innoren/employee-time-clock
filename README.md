@@ -52,6 +52,10 @@ npm run cap:android   # Android Studio — needs a Google Play Console account t
 
 Store builds must point at HTTPS (`NEXT_PUBLIC_APP_URL`). Apple and Google will reject a listing that only loads localhost.
 
+## Quick tips
+
+- [SQL mistakes we hit on Time Clock](docs/sql-quick-tips.md) — `LIMIT` vs dates, `SELECT *` and PIN hashes, schema vs Neon
+
 ### Store submission
 
 See [PUBLISHING.md](PUBLISHING.md) for the App Store and Google Play checklist.
